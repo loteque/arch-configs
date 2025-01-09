@@ -78,7 +78,6 @@ alias ls='ls --color'
 alias -g ll="ls -Alph --group-directories-first --sort=extension --color=auto"
 alias -g code="vscodium -r"
 alias -g ff="firefox-developer-edition --new-window --search"
-alias -g config="$EDITOR ~/.zshrc"
 alias -g e="$EDITOR"
 alias -g ce='cd_by_xplr_tmux_popup'
 alias -g ge='lazygit'

@@ -1,0 +1,15 @@
+# STOW IGNORES
+
+# emacs
+\.\#.+			# lock files
+.+~				# backup files
+\#.*\#			# autosave files
+
+# docs
+^/README.*
+^/LICENSE.*
+^/COPYING.*
+
+# git
+\.git
+\.gitignore

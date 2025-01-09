@@ -5,8 +5,11 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# Set zinit HOME
+# init environment vars
+# set zinit HOME
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
+# set EDITOR 
+EDITOR="micro"
 
 # DL zinit if not exists
 [ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
@@ -75,8 +78,10 @@ alias ls='ls --color'
 alias -g ll="ls -Alph --group-directories-first --sort=extension --color=auto"
 alias -g code="vscodium -r"
 alias -g ff="firefox-developer-edition --new-window --search"
-alias -g config="code -r ~/.zshrc"
+alias -g config="$EDITOR ~/.zshrc"
+alias -g e="$EDITOR"
 alias -g ce='cd_by_xplr_tmux_popup'
+alias -g ge='lazygit'
 
 # default extension handlers
 # system

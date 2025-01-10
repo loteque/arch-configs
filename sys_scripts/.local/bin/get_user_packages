@@ -1,0 +1,5 @@
+#!/bin/bash
+# get_user_packages
+comm -23 \
+<(pacman -Qeq | sort -u) \
+<(xargs -n 1 pactree -u <<< "${@}" | sort -u )

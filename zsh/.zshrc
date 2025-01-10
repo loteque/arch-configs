@@ -6,10 +6,13 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # init environment vars
+# set EDITOR 
+EDITOR="micro"; 	export EDITOR
+LESS="-W"; 		export LESS
+PAGER="most";		export PAGER
+# set zshrc costants
 # set zinit HOME
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-# set EDITOR 
-EDITOR="micro"
 
 # DL zinit if not exists
 [ ! -d $ZINIT_HOME ] && mkdir -p "$(dirname $ZINIT_HOME)"
@@ -73,68 +76,13 @@ eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
 eval "$(register-python-argcomplete pipx)"
 
-# aliases
-alias ls='ls --color'
-alias -g ll="ls -Alph --group-directories-first --sort=extension --color=auto"
-alias -g code="vscodium -r"
-alias -g ff="firefox-developer-edition --new-window --search"
-alias -g e="$EDITOR"
-alias -g ce='cd_by_xplr_tmux_popup'
-alias -g ge='lazygit'
+# source lib
+for FILE in .zshrc-lib/*; do
+	source $FILE
+done
 
-# default extension handlers
-# system
-alias -s zshrc="code"
-alias -s txt="code"
-# rust
-alias -s toml="code"
-alias -s rs="code"
-# godot
-alias -s gd="code"
-alias -s tscn="code"
-alias -s tres="code"
 # Created by `pipx` on 2024-12-19 09:32:55
 export PATH="$PATH:/home/drusr/.local/bin"
-
-## alias definitions with params
-# grep $2 inside manpages of $1
-mans() {
-  man $1 | grep -- $2
-}
-
-# grep $2 from ll of $1
-lg() {
-  
-  list_and_grep_pretty(){
-    if [ $# -eq 1 ]
-    then
-      ll . | grep -- $1
-    else
-      ll $1 | grep -- $2
-    fi
-  }  
-  
-  list_and_grep_pretty $1 $2
-
-}
-
-# xplr in a tmux popup, cd on exit with selection
-cd_by_xplr_tmux_popup() {
-	tmux popup -d "#{pane_current_path}" -E -b rounded 'xcd=$(xplr) && [[ -n $xcd ]] && tmux send-keys "cd " $xcd  "enter" || echo 0 > /dev/null'
-}
-
-# yazi
-# provides the ability to change the current working directory when exiting Yazi
-# press q to quit, you'll see the CWD changed. Sometimes, you don't want to change, press Q to quit.
-function li() {
-	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-	yazi "$@" --cwd-file="$tmp"
-	if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-		builtin cd -- "$cwd"
-	fi
-	rm -f -- "$tmp"
-}
-
 
 # Shell-GPT integration ZSH v0.2
 _sgpt_zsh() {
@@ -149,26 +97,10 @@ fi
 zle -N _sgpt_zsh
 bindkey ^l _sgpt_zsh
 
-
 # pyenv shims
 if command -v pyenv 1>/dev/null 2>&1; then
    eval "$(pyenv init -)"
 fi
-
-# find and install packages
-fpac() { 
-cmd=$(pacman -Slq | fzf --prompt 'pacman> ' \
-  --header 'Install packages. CTRL+[P/Y/R/I/Q] (Pacman/Yay/Installed/Quit)' \
-  --bind 'ctrl-p:change-prompt(pacman> )+reload(pacman -Slq)' \
-  --bind 'ctrl-y:change-prompt(yay> )+reload(yay -Slq)' \
-  --bind 'ctrl-i:change-prompt(inst> )+reload(yay -Qq)' \
-  --multi --height=80% --preview 'sleep 2; yay -Si {1}' \
-  --preview-window right) #| xargs -ro pacman -S
-cmd=${cmd//$'\n'/ }       # newline -> space
-if [ -n "$cmd" ]; then
-  yay -S "$cmd"
-fi
-}
 
 # tmux.
 # quietly determine whether tmux is installed on our system

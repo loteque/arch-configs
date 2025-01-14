@@ -1,0 +1,24 @@
+{
+	"name": "737classicplumnomilk",
+	"displayName": "737 Classic Plum No Milk",
+	"description": "A RootLoops Generated ColorScheme, finetuned by loteque",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.96.0"
+	},
+	"categories": [
+		"Themes"
+	],
+	"contributes": {
+		"themes": [
+			{
+				"label": "737ClassicPlumNoMilk",
+				"uiTheme": "vs-dark",
+				"path": "./themes/737ClassicPlumNoMilk-color-theme.json"
+			}
+		]
+	},
+	"__metadata": {
+		"size": 523319
+	}
+}

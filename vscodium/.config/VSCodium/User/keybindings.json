@@ -1,0 +1,25 @@
+[
+  {
+    "key": "ctrl+down",
+    "command": "workbench.action.terminal.focus",
+  },
+  {
+    "key": "ctrl+up",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+alt+u",
+    "command": "editor.action.transformToUppercase"
+  },
+  // {
+  //   "key": "tab",
+  //   "command": "tab",
+  //   "when": "editorTextFocus && !editorTabMovesFocus" 
+  // },
+  // {
+  //   "key": "shift+tab",
+  //   "command": "outdent",
+  //   "when": "editorTextFocus && !editorTabMovesFocus"
+  // }
+]

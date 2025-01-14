@@ -77,7 +77,7 @@ eval "$(zoxide init --cmd cd zsh)"
 eval "$(register-python-argcomplete pipx)"
 
 # source lib
-for FILE in .zshrc-lib/*; do
+for FILE in ~/.zshrc-lib/*; do
 	source $FILE
 done
 

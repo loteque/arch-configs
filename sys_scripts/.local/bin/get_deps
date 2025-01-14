@@ -1,0 +1,4 @@
+#!/bin/sh
+# get the reverse dependancies of a package
+echo "Enter package name (ctrl+c to quit)"
+xargs -t -n 1 pacman -Qi -- $1 | grep Depe

@@ -1,3 +1,10 @@
 {
-    "colorscheme": "simple"
+    "colorcolumn": 60,
+    "colorscheme": "simple",
+    "diffgutter": true,
+    "pluginrepos": [
+        "https://raw.githubusercontent.com/protostork/micro-tojour/main/repo.json"
+    ],
+    "softwrap": true,
+    "wordwrap": true
 }

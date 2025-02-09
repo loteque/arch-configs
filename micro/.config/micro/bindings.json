@@ -1,5 +1,20 @@
 {
+    "Alt-,": "PreviousTab",
+    "Alt-.": "NextTab",
     "Alt-/": "lua:comment.comment",
+    "Alt-CtrlH": "WordLeft",
+    "Alt-CtrlL": "WordRight",
+    "Alt-Ctrlj": "MoveLinesDown",
+    "Alt-Ctrlk": "MoveLinesUp",
+    "Alt-H": "SelectLeft",
+    "Alt-J": "SelectDown",
+    "Alt-K": "SelectUp",
+    "Alt-L": "SelectRight",
+    "Alt-h": "CursorLeft",
+    "Alt-j": "CursorDown",
+    "Alt-k": "CursorUp",
+    "Alt-l": "CursorRight",
+    "Alt-q": "NextSplit",
     "CtrlUnderscore": "lua:comment.comment",
-	"Tab": "Autocomplete|lua:aspell.acceptsug|IndentSelection|InsertTab",
+    "Tab": "Autocomplete|lua:aspell.acceptsug|IndentSelection|InsertTab"
 }

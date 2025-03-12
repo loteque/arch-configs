@@ -1,0 +1,9 @@
+mkd() {
+	if ! [ $(which markdown)  ]; then
+	sudo pacman -S discount
+	fi
+	if ! [ $(which lynx ) ]; then
+	sudo pacman -S lynx
+	fi
+	markdown $1 | lynx -stdin
+}

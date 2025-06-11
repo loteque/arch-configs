@@ -9,7 +9,7 @@
     "zenMode.showTabs": "none",
     "window.customTitleBarVisibility": "auto",
     "window.experimentalControlOverlay": false,
-    "window.menuBarVisibility": "toggle",
+    "window.menuBarVisibility": "compact",
     "window.titleBarStyle": "custom",
     "window.restoreWindows": "preserve",
     "window.zoomLevel": 0.7,

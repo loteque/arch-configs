@@ -1,0 +1,8 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =6
+let g:netrw_dirhist_6='/home/drusr/stow/neovim/.config/after/plugin'
+let g:netrw_dirhist_5='/home/drusr/stow/neovim/.config/after/plugin/coc.vim'
+let g:netrw_dirhist_4='/home/drusr/stow/neovim/.config/after/plugin'
+let g:netrw_dirhist_3='/home/drusr/stow/neovim/.config/after'
+let g:netrw_dirhist_2='/home/drusr/stow/neovim/.config'
+let g:netrw_dirhist_1='/home/drusr/stow/neovim'

@@ -84,6 +84,9 @@ done
 # Created by `pipx` on 2024-12-19 09:32:55
 export PATH="$PATH:/home/drusr/.local/bin"
 
+# Add radicle forge cli to PATH
+export PATH="$PATH:/home/drusr/.radicle/bin"
+
 # Shell-GPT integration ZSH v0.2
 _sgpt_zsh() {
 if [[ -n "$BUFFER" ]]; then

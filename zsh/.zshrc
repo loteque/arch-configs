@@ -114,3 +114,6 @@ if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
   # if no such session exists, creates a new session named default.	
   tmux attach-session -t default || tmux new-session -f ~/.tmux.conf -s default
 fi
+
+# added by curl -sL https://get.diversion.dev/unix | bash ; export PATH="$HOME/.diversion/bin:$PATH"
+export PATH="$HOME/.diversion/bin:$PATH"

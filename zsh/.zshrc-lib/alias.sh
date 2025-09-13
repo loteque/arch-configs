@@ -1,7 +1,7 @@
 # ls with colors
-alias ls='ls --color'
+alias ls='ls -1 --color=always'
 # ls full expansion, directories on top, by extension
-alias -g ll="ls -Alph --group-directories-first --sort=extension --color=auto"
+alias -g ll="ls -GAlph --group-directories-first --sort=extension --color=always"
 # reuse vcurrent vscode window by default, `vscodium` left default
 alias -g c="codium"
 # open firefox and search for a term given by this alias' argument

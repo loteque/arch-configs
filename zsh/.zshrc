@@ -115,5 +115,10 @@ if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
   tmux attach-session -t default || tmux new-session -f ~/.tmux.conf -s default
 fi
 
-# added by curl -sL https://get.diversion.dev/unix | bash ; export PATH="$HOME/.diversion/bin:$PATH"
-export PATH="$HOME/.diversion/bin:$PATH"
+# pnpm
+export PNPM_HOME="/home/drusr/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end

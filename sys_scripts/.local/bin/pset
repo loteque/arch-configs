@@ -1,0 +1,23 @@
+#!/bin/zsh
+# pset
+# set properties in config files where the file is lines in the form:
+#  [porperty_name][setter][value]; example: TextColor: Brown
+# usage: pset [file][property][vallue][setter]
+# example: pset .config Font "Times New Roman"
+FILE=$1 PROP=$2 VAL=$3 SET=$4;
+[[ -n $FILE ]] || FILE=/dev/null;
+[[ -n $PROP ]] || PROP="PROPERTY";
+[[ -n $VAL ]] || VAL="VALUE";
+[[ -n $SET ]] || SET="=";
+echo "FILE="$FILE; echo "PROPERTY="$PROP; echo "VALUE="$VAL; echo "SETTER="$SET;
+has_file=0 has_prop=0 has_val=0 has_nl=0;
+[ -f $FILE ] && has_file=1 || echo "has_file="$has_file;
+[ $has_file -eq 0 ] && touch $FILE && has_file=1 && echo "has_file="$has_file;
+[ $has_file -eq 1 ] && grep -q $PROP $FILE && has_prop=1; echo "has_prop="$has_prop;
+[ $has_prop -eq 1 ] && grep -q $VAL $FILE && has_val=1; echo "has_val="$has_val;
+[ $has_prop -eq 1 ] && [ $has_val -eq 1 ] && echo "exit early" && exit;
+[ "$(tail -c 1 $FILE)" = "" ] && has_nl=1; echo "has_nl="$has_nl;
+[ $has_nl -eq 0 ] && echo >> $FILE && echo "adding EOF... done.";
+[ $has_prop -eq 1 ] && sed -i "s/${PROP}=.*/${PROP}${SET}${VAL}/g" $FILE;
+[ $has_prop -eq 0 ] && echo $PROP"="$VAL >> $FILE;
+cat $FILE | grep $PROP;

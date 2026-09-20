@@ -1,0 +1,5 @@
+# Copy this file to ~/.mutt/muttrc.local and edit the copy.
+# Keep credentials in separate chmod 600 files; never commit them.
+
+# Example machine-local Mutt settings:
+# source ~/.mutt/protonmail.local

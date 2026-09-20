@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo=${STOW_REPO:-"$HOME/stow"}
+target=${STOW_TARGET:-"$HOME"}
+remote=${STOW_REMOTE:-origin}
+branch=${STOW_BRANCH:-main}
+apply=0
+yes=0
+
+usage() {
+  cat <<'EOF'
+Usage: stow-update-safe [--apply] [--yes]
+
+Fetch and review upstream Stow changes safely.
+
+Default behavior is read-only: fetch, report incoming commits, and run a
+Stow dry-run. Use --apply to fast-forward the checkout after confirmation.
+Use --yes only for a pre-reviewed, non-interactive application.
+EOF
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    --apply) apply=1 ;;
+    --yes) yes=1 ;;
+    -h|--help) usage; exit 0 ;;
+    *) printf 'Unknown option: %s\n' "$arg" >&2; usage >&2; exit 2 ;;
+  esac
+done
+
+die() { printf 'stow-update-safe: %s\n' "$*" >&2; exit 1; }
+
+[ -d "$repo/.git" ] || die "not a Git repository: $repo"
+command -v git >/dev/null || die "git is required"
+command -v stow >/dev/null || die "stow is required"
+
+current_branch=$(git -C "$repo" symbolic-ref --quiet --short HEAD) || die "detached HEAD is not supported"
+[ "$current_branch" = "$branch" ] || die "on branch '$current_branch'; expected '$branch'"
+
+status=$(git -C "$repo" status --porcelain --untracked-files=all)
+[ -z "$status" ] || {
+  printf '%s\n' 'Working tree is not clean; refusing to update.' >&2
+  printf '%s\n' "$status" >&2
+  printf '%s\n' 'Commit or stash local changes before using --apply.' >&2
+  exit 1
+}
+
+upstream="$remote/$branch"
+printf 'Repository: %s\nRemote:     %s\nTarget:     %s\n' "$repo" "$upstream" "$target"
+printf '%s\n' 'Fetching upstream metadata...'
+git -C "$repo" fetch --prune "$remote" "$branch"
+
+read -r local_ahead upstream_behind < <(git -C "$repo" rev-list --left-right --count "HEAD...$upstream")
+printf 'Ahead/behind: %s/%s\n' "$local_ahead" "$upstream_behind"
+
+if [ "$upstream_behind" -eq 0 ]; then
+  printf '%s\n' 'Already up to date.'
+  exit 0
+fi
+
+printf '%s\n' 'Incoming commits:'
+git -C "$repo" log --oneline --decorate "HEAD..$upstream"
+printf '%s\n' 'Incoming file summary:'
+git -C "$repo" diff --stat "HEAD..$upstream"
+printf '%s\n' 'Incoming file names:'
+git -C "$repo" diff --name-status "HEAD..$upstream"
+
+mapfile -t packages < <(find "$repo" -mindepth 1 -maxdepth 1 -type d ! -name .git -printf '%f\n' | sort)
+if [ "${#packages[@]}" -gt 0 ]; then
+  printf '%s\n' 'Stow dry-run:'
+  stow --simulate --verbose --dir="$repo" --target="$target" --restow "${packages[@]}"
+fi
+
+[ "$apply" -eq 1 ] || {
+  printf '%s\n' 'Check complete; nothing was applied.'
+  exit 0
+}
+
+if [ "$yes" -ne 1 ]; then
+  printf 'Apply this fast-forward and restow packages? [y/N] '
+  read -r answer
+  [[ "$answer" = [yY] || "$answer" = [yY][eE][sS] ]] || {
+    printf '%s\n' 'Cancelled.'
+    exit 0
+  }
+fi
+
+backup_ref="refs/stow-update/backups/$(date -u +%Y%m%dT%H%M%SZ)"
+git -C "$repo" update-ref "$backup_ref" HEAD
+printf 'Rollback reference: %s\n' "$backup_ref"
+git -C "$repo" merge --ff-only "$upstream"
+stow --verbose --dir="$repo" --target="$target" --restow "${packages[@]}"
+
+if [ -f "$repo/zsh/.zshrc" ]; then
+  zsh -n "$repo/zsh/.zshrc"
+fi
+if command -v systemd-analyze >/dev/null; then
+  systemd-analyze --user verify "$target/.config/systemd/user"/*.service >/dev/null
+fi
+
+printf '%s\n' 'Update and validation completed successfully.'

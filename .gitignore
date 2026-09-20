@@ -2,3 +2,7 @@ backups/
 buffers/
 plug/
 *.gpg
+*.local
+*.local.env
+!**/.local/
+!**/.local/**

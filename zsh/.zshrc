@@ -10,6 +10,9 @@ fi
 EDITOR="micro"; 	export EDITOR
 LESS="-W"; 		export LESS
 PAGER="most";		export PAGER
+
+# Keep PATH entries unique during shell startup.
+typeset -U path PATH
 # set zshrc costants
 # set zinit HOME
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
@@ -81,12 +84,6 @@ for FILE in ~/.zshrc-lib/*; do
 	source $FILE
 done
 
-# Created by `pipx` on 2024-12-19 09:32:55
-export PATH="$PATH:/home/drusr/.local/bin"
-
-# Add radicle forge cli to PATH
-export PATH="$PATH:/home/drusr/.radicle/bin"
-
 # Shell-GPT integration ZSH v0.2
 _sgpt_zsh() {
 if [[ -n "$BUFFER" ]]; then
@@ -109,7 +106,7 @@ fi
 # quietly determine whether tmux is installed on our system
 # check if already in a tmux session, the -z option returns 
 # true if the length of the $TMUX variable is 0 (not a tmux session)
-if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
+if [[ -o interactive && -z "$TMUX" ]] && command -v tmux &> /dev/null; then
   # attempts to attach to an existing tmux session called default
   # if no such session exists, creates a new session named default.	
   tmux attach-session -t default || tmux new-session -f ~/.tmux.conf -s default
@@ -122,3 +119,6 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# Optional machine-local overrides. This file is never managed by Stow.
+[[ -r "$HOME/.config/shell/local.env" ]] && source "$HOME/.config/shell/local.env"

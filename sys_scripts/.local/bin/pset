@@ -1,23 +1,34 @@
-#!/bin/zsh
-# pset
-# set properties in config files where the file is lines in the form:
-#  [porperty_name][setter][value]; example: TextColor: Brown
-# usage: pset [file][property][vallue][setter]
-# example: pset .config Font "Times New Roman"
-FILE=$1 PROP=$2 VAL=$3 SET=$4;
-[[ -n $FILE ]] || FILE=/dev/null;
-[[ -n $PROP ]] || PROP="PROPERTY";
-[[ -n $VAL ]] || VAL="VALUE";
-[[ -n $SET ]] || SET="=";
-echo "FILE="$FILE; echo "PROPERTY="$PROP; echo "VALUE="$VAL; echo "SETTER="$SET;
-has_file=0 has_prop=0 has_val=0 has_nl=0;
-[ -f $FILE ] && has_file=1 || echo "has_file="$has_file;
-[ $has_file -eq 0 ] && touch $FILE && has_file=1 && echo "has_file="$has_file;
-[ $has_file -eq 1 ] && grep -q $PROP $FILE && has_prop=1; echo "has_prop="$has_prop;
-[ $has_prop -eq 1 ] && grep -q $VAL $FILE && has_val=1; echo "has_val="$has_val;
-[ $has_prop -eq 1 ] && [ $has_val -eq 1 ] && echo "exit early" && exit;
-[ "$(tail -c 1 $FILE)" = "" ] && has_nl=1; echo "has_nl="$has_nl;
-[ $has_nl -eq 0 ] && echo >> $FILE && echo "adding EOF... done.";
-[ $has_prop -eq 1 ] && sed -i "s/${PROP}=.*/${PROP}${SET}${VAL}/g" $FILE;
-[ $has_prop -eq 0 ] && echo $PROP"="$VAL >> $FILE;
-cat $FILE | grep $PROP;
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use Getopt::Long qw(GetOptions);
+use File::Temp qw(tempfile);
+use File::Basename qw(dirname);
+use Fcntl qw(:mode);
+my ($yes,$dry,$help);
+GetOptions('yes'=>\$yes,'dry-run'=>\$dry,'help|h'=>\$help) or usage(2);
+usage(0) if $help || !@ARGV;
+usage(2) unless @ARGV >= 3 && @ARGV <= 4;
+my ($file,$key,$want,$set)=@ARGV;
+die "pset: file does not exist: $file\n" unless -f $file;
+die "pset: invalid property name\n" unless $key =~ /^[A-Za-z0-9_.-]+$/;
+die "pset: value must be single-line\n" if $want =~ /[\r\n]/;
+die "pset: setter must be = or :\n" if defined($set) && $set ne '=' && $set ne ':';
+open my $in,'<',$file or die "pset: cannot read $file: $!\n";
+local $/; my $text=<$in>; close $in;
+my @lines=split(/(?<=\n)/,$text); push @lines,'' unless @lines; my $q=quotemeta($key); my @found;
+for my $i (0..$#lines) { my $body=$lines[$i]; my $nl=''; $nl=$1 if $body =~ s/(\r?\n)$//;
+ if ($body =~ /^([ \t]*)$q([ \t]*)(?:(=|:)([ \t]*)(.*)|([ \t]+)(.*))$/) { push @found,{i=>$i,ind=>$1,sep=>defined($3)?$3:'',cur=>defined($3)?$5:$7,nl=>$nl,old=>$body}; }}
+sub render { my($k,$v,$s)=@_; return "$k: $v" if $s eq ':'; return "$k=$v" if $s eq '='; return "$k$s$v"; }
+my $sep=@found ? (defined($set)?$set:(($found[0]{sep} eq '='||$found[0]{sep} eq ':')?$found[0]{sep}:'=')) : (defined($set)?$set:'=');
+my $new=render($key,$want,$sep); my $changed=0; my @out=@lines;
+if (@found) { for my $m (@found) { $changed=1 if $m->{cur} ne $want; $out[$m->{i}]=$m->{ind}.$new.$m->{nl}; }}
+else { $changed=1; $out[-1].="\n" unless $out[-1]=~/\r?\n$/; push @out,"$new\n"; }
+print "Property update\n\nFile:     $file\nProperty: $key\nSetter:   $sep\nCurrent:\n";
+print @found ? map {"  $_->{old}\n"} @found : "  <not set>\n"; print "New:\n"; my $n=@found||1; print "  $new\n" for 1..$n;
+if (!$changed) { print "\nProperty already set.\n\nNo change made.\n"; exit 0; }
+if ($dry) { print "\nDry run; no change made.\n"; exit 0; }
+if (!$yes) { print "\nApply this change? [y/N] "; my $a=<STDIN>//''; chomp $a; exit 0 unless $a =~ /^(y|yes)$/i; }
+my @st=stat($file); my($fh,$tmp)=tempfile('.pset.XXXXXX',DIR=>dirname($file),UNLINK=>0); print $fh @out; close $fh; chmod S_IMODE($st[2]),$tmp; rename $tmp,$file or die "pset: cannot replace $file: $!\n";
+print "\nUpdated successfully:\n"; print @found ? map {"  $_->{old}\n"} @found : "  <not set>\n"; print "-> $new\n";
+sub usage { my($e)=@_; print STDERR "Usage: pset [--yes] [--dry-run] FILE PROPERTY VALUE [SETTER]\n" if $e; print "Usage: pset [--yes] [--dry-run] FILE PROPERTY VALUE [SETTER]\n\nUpdates or appends an exact property with confirmation.\n" unless $e; exit $e; }
